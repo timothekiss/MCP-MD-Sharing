@@ -48,7 +48,7 @@ async function OrgSection({ orgId, orgName }: { orgId: string; orgName: string }
       {(members ?? []).map((m: { user_id: string; email: string; role: string }) => (
         <div className="list-item" key={m.user_id}>
           <div>
-            {m.email} <span className="badge">{m.role}</span>
+            {m.email} <span className={`badge badge-${m.role}`}>{m.role}</span>
           </div>
           <RemoveOrgMemberButton orgId={orgId} userId={m.user_id} />
         </div>
