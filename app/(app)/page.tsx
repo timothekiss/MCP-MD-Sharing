@@ -22,7 +22,7 @@ export default async function HomePage() {
     <>
       <h1>Welcome</h1>
       <p className="muted">You&apos;re not part of an organization yet. Create one to get started.</p>
-      <CreateOrgForm />
+      <CreateOrgForm redirectTo="/projects" />
     </>
   );
 }

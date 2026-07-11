@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
 
-export function CreateOrgForm() {
+export function CreateOrgForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,8 @@ export function CreateOrgForm() {
       return;
     }
 
-    router.push("/projects");
+    setName("");
+    if (redirectTo) router.push(redirectTo);
     router.refresh();
   }
 

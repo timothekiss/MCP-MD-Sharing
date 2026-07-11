@@ -1,6 +1,7 @@
 import { getServerClient } from "@/lib/supabase-server";
 import { AddOrgMemberForm } from "./add-member-form";
 import { RemoveOrgMemberButton } from "./remove-member-button";
+import { CreateOrgForm } from "../create-org-form";
 
 export default async function OrganizationPage() {
   const supabase = await getServerClient();
@@ -13,6 +14,8 @@ export default async function OrganizationPage() {
     .select("organization_id, role, organizations(name)")
     .eq("user_id", user!.id);
 
+  const canCreateOrg = (memberships ?? []).some((m) => m.role === "owner" || m.role === "admin");
+
   return (
     <>
       <h1>Organization</h1>
@@ -23,6 +26,13 @@ export default async function OrganizationPage() {
           orgName={(m.organizations as unknown as { name: string } | null)?.name ?? "Organization"}
         />
       ))}
+
+      {canCreateOrg && (
+        <div className="card" style={{ marginTop: 24 }}>
+          <h3>New organization</h3>
+          <CreateOrgForm redirectTo="/organization" />
+        </div>
+      )}
     </>
   );
 }
