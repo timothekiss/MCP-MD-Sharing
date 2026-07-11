@@ -1,0 +1,61 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { updateDocumentAction } from "../../actions";
+
+export function DocumentEditor({
+  projectId,
+  path,
+  content,
+  currentVersion,
+}: {
+  projectId: string;
+  path: string;
+  content: string;
+  currentVersion: number;
+}) {
+  const router = useRouter();
+  const [value, setValue] = useState(content);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+
+    try {
+      await updateDocumentAction(projectId, path, value, currentVersion, message || undefined);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="card">
+      <textarea value={value} onChange={(e) => setValue(e.target.value)} />
+      <div className="row" style={{ marginTop: 8 }}>
+        <input
+          placeholder="Change message (optional)"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <button onClick={handleSave} disabled={saving}>
+          Save new version
+        </button>
+      </div>
+      {error && (
+        <p className="error">
+          {error}
+          {error.startsWith("Version conflict") &&
+            " Reload the page to pick up the latest version, then re-apply your edit."}
+        </p>
+      )}
+    </div>
+  );
+}

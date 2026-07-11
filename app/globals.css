@@ -1,0 +1,141 @@
+:root {
+  color-scheme: light dark;
+  --border: #d8d8e0;
+  --muted: #666;
+  --bg-subtle: #f6f6f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --border: #3a3a42;
+    --muted: #9a9aa5;
+    --bg-subtle: #1c1c22;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light dark;
+}
+
+a {
+  color: inherit;
+}
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav a {
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.nav .spacer {
+  flex: 1;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}
+
+textarea {
+  width: 100%;
+  min-height: 260px;
+  font-family: ui-monospace, monospace;
+}
+
+button {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  color: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.05);
+}
+
+button.danger {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.error {
+  color: #c0392b;
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+}
