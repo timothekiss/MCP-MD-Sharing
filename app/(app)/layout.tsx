@@ -13,6 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <nav className="nav">
         <Link href="/">MCP-MD-Sharing</Link>
         <Link href="/projects">Projects</Link>
+        <Link href="/search">Search</Link>
         <Link href="/organization">Organization</Link>
         <Link href="/api-keys">API Keys</Link>
         <div className="spacer" />
