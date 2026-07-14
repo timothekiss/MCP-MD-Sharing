@@ -11,6 +11,10 @@
   --accent-soft: rgba(79, 109, 245, 0.14);
   --danger: #f0554a;
   --danger-soft: rgba(240, 85, 74, 0.14);
+  --success: #5ec891;
+  --success-soft: rgba(94, 200, 145, 0.12);
+  --warn: #e2933e;
+  --warn-soft: rgba(226, 147, 62, 0.14);
   --radius: 10px;
   --radius-pill: 999px;
   --sidebar-width: 220px;
@@ -336,4 +340,73 @@ pre {
   overflow-x: auto;
   white-space: pre-wrap;
   font-size: 13px;
+}
+
+/* Version diff (side-by-side compare) */
+
+.diff-wrapper {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.diff-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 1;
+}
+
+.diff-header > div {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.diff-header > div:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.diff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.diff-cell {
+  padding: 1px 12px;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-right: 1px solid var(--border);
+}
+
+.diff-cell:nth-child(2n) {
+  border-right: none;
+}
+
+.diff-same {
+  color: var(--success);
+}
+
+.diff-removed {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.diff-added,
+.diff-modified {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.diff-empty {
+  background: var(--surface);
 }

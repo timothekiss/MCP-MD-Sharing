@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { restoreVersionAction } from "../../actions";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { computeSideBySideDiff, type DiffRow } from "@/lib/diff-lines";
 
 interface HistoryEntry {
   version_number: number;
@@ -25,6 +26,8 @@ export function VersionHistory({
   const router = useRouter();
   const [previewVersion, setPreviewVersion] = useState<number | null>(null);
   const [previewContent, setPreviewContent] = useState<string>("");
+  const [selected, setSelected] = useState<number[]>([]);
+  const [diff, setDiff] = useState<{ from: number; to: number; rows: DiffRow[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -63,17 +66,103 @@ export function VersionHistory({
     }
   }
 
+  function toggleSelected(versionNumber: number) {
+    setSelected((prev) => {
+      if (prev.includes(versionNumber)) return prev.filter((v) => v !== versionNumber);
+      if (prev.length >= 2) return prev;
+      return [...prev, versionNumber];
+    });
+  }
+
+  async function fetchContent(versionNumber: number): Promise<string> {
+    const supabase = getBrowserClient();
+    const { data: doc } = await supabase
+      .from("documents")
+      .select("id")
+      .eq("project_id", projectId)
+      .eq("path", path)
+      .single();
+    const { data } = await supabase
+      .from("versions")
+      .select("content")
+      .eq("document_id", doc!.id)
+      .eq("version_number", versionNumber)
+      .single();
+    return data?.content ?? "";
+  }
+
+  async function handleCompare() {
+    if (selected.length !== 2) return;
+    setError(null);
+    const [from, to] = [...selected].sort((a, b) => a - b);
+    const [oldContent, newContent] = await Promise.all([fetchContent(from), fetchContent(to)]);
+    setDiff({ from, to, rows: computeSideBySideDiff(oldContent, newContent) });
+  }
+
+  if (diff) {
+    return (
+      <div>
+        <div className="row" style={{ marginBottom: 12, justifyContent: "space-between" }}>
+          <strong>
+            Comparing v{diff.from} → v{diff.to}
+          </strong>
+          <button onClick={() => setDiff(null)}>Close comparison</button>
+        </div>
+        <div className="diff-wrapper">
+          <div className="diff-header">
+            <div>v{diff.from}</div>
+            <div>v{diff.to}</div>
+          </div>
+          <div className="diff-grid">
+            {diff.rows.map((row, i) => (
+              <Fragment key={i}>
+                <div
+                  className={`diff-cell ${row.left === null ? "diff-empty" : row.kind === "same" ? "diff-same" : row.kind === "removed" ? "diff-removed" : "diff-modified"}`}
+                >
+                  {row.left ?? ""}
+                </div>
+                <div
+                  className={`diff-cell ${row.right === null ? "diff-empty" : row.kind === "same" ? "diff-same" : "diff-modified"}`}
+                >
+                  {row.right ?? ""}
+                </div>
+              </Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {error && <p className="error">{error}</p>}
+      <div className="row" style={{ marginBottom: 12 }}>
+        <button onClick={handleCompare} disabled={selected.length !== 2}>
+          Compare {selected.length === 2 ? `(v${Math.min(...selected)} vs v${Math.max(...selected)})` : ""}
+        </button>
+        {selected.length > 0 && <span className="muted">{selected.length}/2 selected</span>}
+      </div>
       {history.map((h) => (
         <div key={h.version_number}>
           <div className="list-item">
-            <div>
-              <strong>v{h.version_number}</strong>
-              {h.version_number === currentVersion && <span className="badge" style={{ marginLeft: 8 }}>current</span>}
-              <div className="muted">
-                {h.message ?? "—"} · {new Date(h.created_at).toLocaleString()}
+            <div className="row">
+              <input
+                type="checkbox"
+                checked={selected.includes(h.version_number)}
+                onChange={() => toggleSelected(h.version_number)}
+                disabled={!selected.includes(h.version_number) && selected.length >= 2}
+              />
+              <div>
+                <strong>v{h.version_number}</strong>
+                {h.version_number === currentVersion && (
+                  <span className="badge" style={{ marginLeft: 8 }}>
+                    current
+                  </span>
+                )}
+                <div className="muted">
+                  {h.message ?? "—"} · {new Date(h.created_at).toLocaleString()}
+                </div>
               </div>
             </div>
             <div className="row">
