@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getServerClient } from "@/lib/supabase-server";
 import { NewDocumentForm } from "./new-document-form";
+import { UploadMdForm } from "./upload-md-form";
 
 export default async function ProjectPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
@@ -27,6 +28,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ projec
           <span className="badge">v{d.current_version}</span>
         </div>
       ))}
+
+      <div style={{ marginTop: 24 }}>
+        <h3>Add MD</h3>
+        <UploadMdForm projectId={projectId} />
+      </div>
 
       <div className="card" style={{ marginTop: 24 }}>
         <h3>New document</h3>
