@@ -1,4 +1,4 @@
-import { diffLines } from "diff";
+import { diffChars, diffLines } from "diff";
 
 export interface DiffRow {
   left: string | null;
@@ -53,4 +53,32 @@ export function computeSideBySideDiff(oldText: string, newText: string): DiffRow
   }
 
   return rows;
+}
+
+export interface InlineSegment {
+  text: string;
+  changed: boolean;
+}
+
+// Character-level diff between two versions of the same line, used to
+// highlight exactly which characters changed within a "modified" row
+// instead of coloring the whole line.
+export function computeInlineDiff(oldLine: string, newLine: string): { left: InlineSegment[]; right: InlineSegment[] } {
+  const parts = diffChars(oldLine, newLine);
+
+  const left: InlineSegment[] = [];
+  const right: InlineSegment[] = [];
+
+  for (const part of parts) {
+    if (!part.added && !part.removed) {
+      left.push({ text: part.value, changed: false });
+      right.push({ text: part.value, changed: false });
+    } else if (part.removed) {
+      left.push({ text: part.value, changed: true });
+    } else if (part.added) {
+      right.push({ text: part.value, changed: true });
+    }
+  }
+
+  return { left, right };
 }

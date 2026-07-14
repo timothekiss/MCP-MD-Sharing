@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { restoreVersionAction } from "../../actions";
 import { getBrowserClient } from "@/lib/supabase-browser";
-import { computeSideBySideDiff, type DiffRow } from "@/lib/diff-lines";
+import { computeInlineDiff, computeSideBySideDiff, type DiffRow } from "@/lib/diff-lines";
 
 interface HistoryEntry {
   version_number: number;
@@ -114,20 +114,46 @@ export function VersionHistory({
             <div>v{diff.to}</div>
           </div>
           <div className="diff-grid">
-            {diff.rows.map((row, i) => (
-              <Fragment key={i}>
-                <div
-                  className={`diff-cell ${row.left === null ? "diff-empty" : row.kind === "same" ? "diff-same" : row.kind === "removed" ? "diff-removed" : "diff-modified"}`}
-                >
-                  {row.left ?? ""}
-                </div>
-                <div
-                  className={`diff-cell ${row.right === null ? "diff-empty" : row.kind === "same" ? "diff-same" : "diff-modified"}`}
-                >
-                  {row.right ?? ""}
-                </div>
-              </Fragment>
-            ))}
+            {diff.rows.map((row, i) => {
+              // A modified row with both sides present gets a character-level
+              // diff so only the changed characters are colored, not the whole line.
+              if (row.kind === "modified" && row.left !== null && row.right !== null) {
+                const { left, right } = computeInlineDiff(row.left, row.right);
+                return (
+                  <Fragment key={i}>
+                    <div className="diff-cell">
+                      {left.map((seg, j) => (
+                        <span key={j} className={seg.changed ? "diff-seg-changed-left" : "diff-seg-same"}>
+                          {seg.text}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="diff-cell">
+                      {right.map((seg, j) => (
+                        <span key={j} className={seg.changed ? "diff-seg-changed-right" : "diff-seg-same"}>
+                          {seg.text}
+                        </span>
+                      ))}
+                    </div>
+                  </Fragment>
+                );
+              }
+
+              return (
+                <Fragment key={i}>
+                  <div
+                    className={`diff-cell ${row.left === null ? "diff-empty" : row.kind === "same" ? "diff-same" : row.kind === "removed" ? "diff-removed" : "diff-modified"}`}
+                  >
+                    {row.left ?? ""}
+                  </div>
+                  <div
+                    className={`diff-cell ${row.right === null ? "diff-empty" : row.kind === "same" ? "diff-same" : "diff-modified"}`}
+                  >
+                    {row.right ?? ""}
+                  </div>
+                </Fragment>
+              );
+            })}
           </div>
         </div>
       </div>

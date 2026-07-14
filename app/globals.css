@@ -410,3 +410,21 @@ pre {
 .diff-empty {
   background: var(--surface);
 }
+
+/* Inline (character-level) segments within a modified line */
+
+.diff-seg-same {
+  color: var(--success);
+}
+
+.diff-seg-changed-left {
+  color: var(--danger);
+  background: var(--danger-soft);
+  text-decoration: line-through;
+  text-decoration-color: var(--danger);
+}
+
+.diff-seg-changed-right {
+  color: var(--warn);
+  background: var(--warn-soft);
+}
