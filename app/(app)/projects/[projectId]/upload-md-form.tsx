@@ -78,7 +78,10 @@ export function UploadMdForm({ projectId }: { projectId: string }) {
           accept=".md"
           multiple
           hidden
-          onChange={(e) => handleFiles(e.target.files)}
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = ""; // allow re-selecting the same file after fixing an error
+          }}
         />
       </div>
 

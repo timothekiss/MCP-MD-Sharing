@@ -6,13 +6,15 @@ import { embedTexts } from "./embeddings";
 // Called after every create/update/restore so search never serves stale text.
 export async function reindexDocument(documentId: string, versionNumber: number, content: string) {
   const supabase = getServiceClient();
+  const pieces = chunkMarkdown(content);
+
+  // Compute the new chunks/embeddings before touching existing rows, so a
+  // failed embedding call (e.g. OpenAI down) leaves the previous, still-valid
+  // index in place instead of leaving the document unsearchable.
+  const embeddings = pieces.length > 0 ? await embedTexts(pieces) : [];
 
   await supabase.from("chunks").delete().eq("document_id", documentId);
-
-  const pieces = chunkMarkdown(content);
   if (pieces.length === 0) return;
-
-  const embeddings = await embedTexts(pieces);
 
   const rows = pieces.map((text, i) => ({
     document_id: documentId,

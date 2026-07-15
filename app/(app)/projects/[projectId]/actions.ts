@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getServerClient } from "@/lib/supabase-server";
 import { reindexDocumentSafe } from "@/lib/indexing";
+import { VersionConflictError } from "@/lib/documents";
 
 export async function createDocumentAction(projectId: string, path: string, content: string, message?: string) {
   const supabase = await getServerClient();
@@ -54,7 +55,19 @@ export async function updateDocumentAction(
     p_content: content,
     p_message: message ?? null,
   });
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (error.message.startsWith("VERSION_CONFLICT:")) {
+      const conflictVersion = Number(error.message.split(":")[1]);
+      const { data: latest } = await supabase
+        .from("versions")
+        .select("content")
+        .eq("document_id", doc.id)
+        .eq("version_number", conflictVersion)
+        .single();
+      throw new VersionConflictError(conflictVersion, latest?.content ?? "");
+    }
+    throw new Error(error.message);
+  }
 
   const row = Array.isArray(data) ? data[0] : data;
   await reindexDocumentSafe(doc.id, row.version_number, content);

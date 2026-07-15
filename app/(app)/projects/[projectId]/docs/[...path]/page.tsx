@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getServerClient } from "@/lib/supabase-server";
 import { DocumentEditor } from "./document-editor";
 import { VersionHistory } from "./version-history";
@@ -17,19 +18,21 @@ export default async function DocumentPage({
     .select("id, current_version")
     .eq("project_id", projectId)
     .eq("path", path)
-    .single();
+    .maybeSingle();
+
+  if (!doc) notFound();
 
   const { data: version } = await supabase
     .from("versions")
     .select("content, version_number, message, created_at")
-    .eq("document_id", doc!.id)
-    .eq("version_number", doc!.current_version)
+    .eq("document_id", doc.id)
+    .eq("version_number", doc.current_version)
     .single();
 
   const { data: history } = await supabase
     .from("versions")
     .select("version_number, message, created_at")
-    .eq("document_id", doc!.id)
+    .eq("document_id", doc.id)
     .order("version_number", { ascending: false });
 
   return (
@@ -43,14 +46,14 @@ export default async function DocumentPage({
         projectId={projectId}
         path={path}
         content={version?.content ?? ""}
-        currentVersion={doc!.current_version}
+        currentVersion={doc.current_version}
       />
 
       <h2 style={{ marginTop: 32 }}>History</h2>
       <VersionHistory
         projectId={projectId}
         path={path}
-        currentVersion={doc!.current_version}
+        currentVersion={doc.current_version}
         history={history ?? []}
       />
     </>

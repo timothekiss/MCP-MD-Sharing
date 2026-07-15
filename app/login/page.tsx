@@ -63,14 +63,26 @@ export default function LoginPage() {
         {mode === "sign-in" ? (
           <>
             No account yet?{" "}
-            <a href="#" onClick={() => setMode("sign-up")}>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setMode("sign-up");
+              }}
+            >
               Sign up
             </a>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <a href="#" onClick={() => setMode("sign-in")}>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setMode("sign-in");
+              }}
+            >
               Sign in
             </a>
           </>
