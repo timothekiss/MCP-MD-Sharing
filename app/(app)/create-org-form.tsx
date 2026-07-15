@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { useLocale } from "./locale-context";
 
 export function CreateOrgForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,13 +33,13 @@ export function CreateOrgForm({ redirectTo }: { redirectTo?: string }) {
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Organization name
+        {t("org.name")}
         <br />
         <input required value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={loading}>
-        Create organization
+        {t("org.create")}
       </button>
     </form>
   );

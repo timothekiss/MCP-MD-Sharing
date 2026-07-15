@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { useLocale } from "../../../locale-context";
 
 export function AddProjectMemberForm({ projectId }: { projectId: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("reader");
   const [error, setError] = useState<string | null>(null);
@@ -35,22 +37,22 @@ export function AddProjectMemberForm({ projectId }: { projectId: string }) {
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Email
+        {t("org.email")}
         <br />
         <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>
       <label>
-        Role
+        {t("org.role")}
         <br />
         <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="reader">Reader</option>
-          <option value="editor">Editor</option>
-          <option value="admin">Admin</option>
+          <option value="reader">{t("role.reader")}</option>
+          <option value="editor">{t("role.editor")}</option>
+          <option value="admin">{t("role.admin")}</option>
         </select>
       </label>
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={loading}>
-        Add member
+        {t("members.add")}
       </button>
     </form>
   );

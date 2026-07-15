@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createDocumentAction } from "./actions";
+import { useLocale } from "../../locale-context";
 
 type FileStatus = "pending" | "done" | "error";
 
@@ -14,6 +15,7 @@ interface UploadEntry {
 
 export function UploadMdForm({ projectId }: { projectId: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploads, setUploads] = useState<UploadEntry[]>([]);
@@ -71,7 +73,7 @@ export function UploadMdForm({ projectId }: { projectId: string }) {
           handleFiles(e.dataTransfer.files);
         }}
       >
-        <p style={{ margin: "8px 0" }}>Drop .md file(s) here, or click to browse</p>
+        <p style={{ margin: "8px 0" }}>{t("project.dropHint")}</p>
         <input
           ref={inputRef}
           type="file"
@@ -90,14 +92,14 @@ export function UploadMdForm({ projectId }: { projectId: string }) {
           {uploads.map((u, i) => (
             <div className="list-item" key={`${u.name}-${i}`}>
               <span>{u.name}</span>
-              {u.status === "pending" && <span className="badge">uploading…</span>}
-              {u.status === "done" && <span className="badge badge-editor">done</span>}
+              {u.status === "pending" && <span className="badge">{t("project.uploading")}</span>}
+              {u.status === "done" && <span className="badge badge-editor">{t("project.done")}</span>}
               {u.status === "error" && <span className="error">{u.message}</span>}
             </div>
           ))}
         </div>
       )}
-      {busy && <p className="muted">Uploading…</p>}
+      {busy && <p className="muted">{t("project.uploading")}</p>}
     </div>
   );
 }

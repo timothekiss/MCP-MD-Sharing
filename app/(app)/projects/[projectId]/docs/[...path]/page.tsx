@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { getServerClient } from "@/lib/supabase-server";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { t } from "@/lib/i18n/dictionary";
 import { DocumentEditor } from "./document-editor";
 import { VersionHistory } from "./version-history";
 
@@ -12,6 +14,10 @@ export default async function DocumentPage({
   const path = pathParts.join("/");
 
   const supabase = await getServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const locale = getLocale(user);
 
   const { data: doc } = await supabase
     .from("documents")
@@ -39,7 +45,8 @@ export default async function DocumentPage({
     <>
       <h1>{path}</h1>
       <p className="muted">
-        Current version: {version?.version_number} · {new Date(version?.created_at ?? "").toLocaleString()}
+        {t(locale, "doc.currentVersion")}: {version?.version_number} ·{" "}
+        {new Date(version?.created_at ?? "").toLocaleString()}
       </p>
 
       <DocumentEditor
@@ -49,7 +56,7 @@ export default async function DocumentPage({
         currentVersion={doc.current_version}
       />
 
-      <h2 style={{ marginTop: 32 }}>History</h2>
+      <h2 style={{ marginTop: 32 }}>{t(locale, "doc.history")}</h2>
       <VersionHistory
         projectId={projectId}
         path={path}

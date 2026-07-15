@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase-server";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { t } from "@/lib/i18n/dictionary";
 import { CreateOrgForm } from "./create-org-form";
 
 export default async function HomePage() {
@@ -7,6 +9,7 @@ export default async function HomePage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const locale = getLocale(user);
 
   const { data: memberships } = await supabase
     .from("memberships")
@@ -20,8 +23,8 @@ export default async function HomePage() {
 
   return (
     <>
-      <h1>Welcome</h1>
-      <p className="muted">You&apos;re not part of an organization yet. Create one to get started.</p>
+      <h1>{t(locale, "home.welcome")}</h1>
+      <p className="muted">{t(locale, "home.notInOrg")}</p>
       <CreateOrgForm redirectTo="/projects" />
     </>
   );

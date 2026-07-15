@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { useLocale } from "../../../locale-context";
 
 export function RemoveProjectMemberButton({ projectId, userId }: { projectId: string; userId: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [loading, setLoading] = useState(false);
 
   async function handleRemove() {
@@ -17,7 +19,7 @@ export function RemoveProjectMemberButton({ projectId, userId }: { projectId: st
 
   return (
     <button className="danger" onClick={handleRemove} disabled={loading}>
-      Remove
+      {t("org.remove")}
     </button>
   );
 }

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { useLocale } from "../locale-context";
 
 export function RevokeApiKeyButton({ keyId }: { keyId: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [loading, setLoading] = useState(false);
 
   async function handleRevoke() {
@@ -17,7 +19,7 @@ export function RevokeApiKeyButton({ keyId }: { keyId: string }) {
 
   return (
     <button className="danger" onClick={handleRevoke} disabled={loading}>
-      Revoke
+      {t("apiKeys.revoke")}
     </button>
   );
 }

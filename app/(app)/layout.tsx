@@ -1,5 +1,7 @@
 import { getServerClient } from "@/lib/supabase-server";
+import { getLocale } from "@/lib/i18n/get-locale";
 import { Sidebar } from "./sidebar";
+import { LocaleProvider } from "./locale-context";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await getServerClient();
@@ -8,11 +10,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   } = await supabase.auth.getUser();
 
   return (
-    <div className="shell">
-      <Sidebar userEmail={user?.email} />
-      <div className="main">
-        <div className="page">{children}</div>
+    <LocaleProvider initialLocale={getLocale(user)}>
+      <div className="shell">
+        <Sidebar userEmail={user?.email} />
+        <div className="main">
+          <div className="page">{children}</div>
+        </div>
       </div>
-    </div>
+    </LocaleProvider>
   );
 }

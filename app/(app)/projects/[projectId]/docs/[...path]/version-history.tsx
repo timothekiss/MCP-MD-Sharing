@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { restoreVersionAction } from "../../actions";
 import { getBrowserClient } from "@/lib/supabase-browser";
 import { computeInlineDiff, computeSideBySideDiff, type DiffRow } from "@/lib/diff-lines";
+import { useLocale } from "../../../../locale-context";
 
 interface HistoryEntry {
   version_number: number;
@@ -24,6 +25,7 @@ export function VersionHistory({
   history: HistoryEntry[];
 }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [previewVersion, setPreviewVersion] = useState<number | null>(null);
   const [previewContent, setPreviewContent] = useState<string>("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -104,9 +106,9 @@ export function VersionHistory({
       <div>
         <div className="row" style={{ marginBottom: 12, justifyContent: "space-between" }}>
           <strong>
-            Comparing v{diff.from} → v{diff.to}
+            {t("doc.comparing")} v{diff.from} → v{diff.to}
           </strong>
-          <button onClick={() => setDiff(null)}>Close comparison</button>
+          <button onClick={() => setDiff(null)}>{t("doc.closeComparison")}</button>
         </div>
         <div className="diff-wrapper">
           <div className="diff-header">
@@ -165,9 +167,13 @@ export function VersionHistory({
       {error && <p className="error">{error}</p>}
       <div className="row" style={{ marginBottom: 12 }}>
         <button onClick={handleCompare} disabled={selected.length !== 2}>
-          Compare {selected.length === 2 ? `(v${Math.min(...selected)} vs v${Math.max(...selected)})` : ""}
+          {t("doc.compare")} {selected.length === 2 ? `(v${Math.min(...selected)} vs v${Math.max(...selected)})` : ""}
         </button>
-        {selected.length > 0 && <span className="muted">{selected.length}/2 selected</span>}
+        {selected.length > 0 && (
+          <span className="muted">
+            {selected.length}/2 {t("doc.selected")}
+          </span>
+        )}
       </div>
       {history.map((h) => (
         <div key={h.version_number}>
@@ -183,7 +189,7 @@ export function VersionHistory({
                 <strong>v{h.version_number}</strong>
                 {h.version_number === currentVersion && (
                   <span className="badge" style={{ marginLeft: 8 }}>
-                    current
+                    {t("doc.current")}
                   </span>
                 )}
                 <div className="muted">
@@ -193,11 +199,11 @@ export function VersionHistory({
             </div>
             <div className="row">
               <button onClick={() => handlePreview(h.version_number)}>
-                {previewVersion === h.version_number ? "Hide" : "View"}
+                {previewVersion === h.version_number ? t("doc.hide") : t("doc.view")}
               </button>
               {h.version_number !== currentVersion && (
                 <button onClick={() => handleRestore(h.version_number)} disabled={busy}>
-                  Restore
+                  {t("doc.restore")}
                 </button>
               )}
             </div>

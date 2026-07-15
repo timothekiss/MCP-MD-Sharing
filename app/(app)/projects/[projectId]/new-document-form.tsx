@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createDocumentAction } from "./actions";
+import { useLocale } from "../../locale-context";
 
 export function NewDocumentForm({ projectId }: { projectId: string }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [path, setPath] = useState("");
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,18 +32,18 @@ export function NewDocumentForm({ projectId }: { projectId: string }) {
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Path
+        {t("project.path")}
         <br />
         <input required placeholder="notes/example.md" value={path} onChange={(e) => setPath(e.target.value)} />
       </label>
       <label>
-        Content
+        {t("project.content")}
         <br />
         <textarea value={content} onChange={(e) => setContent(e.target.value)} />
       </label>
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={loading}>
-        Create document
+        {t("project.createDocument")}
       </button>
     </form>
   );

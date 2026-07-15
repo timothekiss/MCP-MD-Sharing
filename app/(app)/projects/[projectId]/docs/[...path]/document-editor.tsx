@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateDocumentAction } from "../../actions";
+import { useLocale } from "../../../../locale-context";
 
 export function DocumentEditor({
   projectId,
@@ -16,6 +17,7 @@ export function DocumentEditor({
   currentVersion: number;
 }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [value, setValue] = useState(content);
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -40,20 +42,19 @@ export function DocumentEditor({
       <textarea value={value} onChange={(e) => setValue(e.target.value)} />
       <div className="row" style={{ marginTop: 8 }}>
         <input
-          placeholder="Change message (optional)"
+          placeholder={t("doc.changeMessage")}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           style={{ flex: 1 }}
         />
         <button onClick={handleSave} disabled={saving}>
-          Save new version
+          {t("doc.saveNewVersion")}
         </button>
       </div>
       {error && (
         <p className="error">
           {error}
-          {error.startsWith("Version conflict") &&
-            " Reload the page to pick up the latest version, then re-apply your edit."}
+          {error.startsWith("Version conflict") && " " + t("doc.versionConflictHint")}
         </p>
       )}
     </div>

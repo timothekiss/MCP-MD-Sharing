@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SignOutButton } from "./sign-out-button";
+import { LanguageSwitcher } from "./language-switcher";
+import { useLocale } from "./locale-context";
 
 const STORAGE_KEY = "sidebar-collapsed";
 
@@ -39,14 +41,8 @@ const icons = {
   ),
 };
 
-const links = [
-  { href: "/projects", label: "Projects", icon: icons.projects },
-  { href: "/search", label: "Search", icon: icons.search },
-  { href: "/organization", label: "Organization", icon: icons.organization },
-  { href: "/api-keys", label: "API Keys", icon: icons.apiKeys },
-];
-
 export function Sidebar({ userEmail }: { userEmail?: string }) {
+  const { t } = useLocale();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -61,17 +57,24 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
     });
   }
 
+  const links = [
+    { href: "/projects", label: t("nav.projects"), icon: icons.projects },
+    { href: "/search", label: t("nav.search"), icon: icons.search },
+    { href: "/organization", label: t("nav.organization"), icon: icons.organization },
+    { href: "/api-keys", label: t("nav.apiKeys"), icon: icons.apiKeys },
+  ];
+
   return (
     <aside className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`}>
       <div className="sidebar-top">
         <Link href="/" className="sidebar-brand">
-          {collapsed ? "M" : "MCP-MD-Sharing"}
+          {collapsed ? "M" : t("nav.brand")}
         </Link>
         <button
           className="sidebar-toggle"
           onClick={toggle}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? t("nav.expand") : t("nav.collapse")}
+          title={collapsed ? t("nav.expand") : t("nav.collapse")}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             {collapsed ? <path d="m9 6 6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /> : <path d="m15 6-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />}
@@ -88,6 +91,7 @@ export function Sidebar({ userEmail }: { userEmail?: string }) {
       </nav>
       <div className="sidebar-footer">
         {!collapsed && <div className="sidebar-user">{userEmail}</div>}
+        <LanguageSwitcher collapsed={collapsed} />
         <SignOutButton iconOnly={collapsed} />
       </div>
     </aside>

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getServerClient } from "@/lib/supabase-server";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { t } from "@/lib/i18n/dictionary";
 import { NewProjectForm } from "./new-project-form";
 
 export default async function ProjectsPage() {
@@ -7,6 +9,7 @@ export default async function ProjectsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const locale = getLocale(user);
 
   const { data: projects } = await supabase
     .from("projects")
@@ -26,8 +29,8 @@ export default async function ProjectsPage() {
 
   return (
     <>
-      <h1>Projects</h1>
-      {(projects ?? []).length === 0 && <p className="muted">No projects yet.</p>}
+      <h1>{t(locale, "projects.title")}</h1>
+      {(projects ?? []).length === 0 && <p className="muted">{t(locale, "projects.none")}</p>}
       {(projects ?? []).map((p) => (
         <div className="list-item" key={p.id}>
           <div>
@@ -39,7 +42,7 @@ export default async function ProjectsPage() {
 
       {adminOrgs.length > 0 && (
         <div className="card" style={{ marginTop: 24 }}>
-          <h3>New project</h3>
+          <h3>{t(locale, "projects.new")}</h3>
           <NewProjectForm orgs={adminOrgs} />
         </div>
       )}

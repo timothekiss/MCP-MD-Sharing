@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { useLocale } from "../locale-context";
 
 export function NewProjectForm({ orgs }: { orgs: { id: string; name: string }[] }) {
   const router = useRouter();
+  const { t } = useLocale();
   const [name, setName] = useState("");
   const [orgId, setOrgId] = useState(orgs[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export function NewProjectForm({ orgs }: { orgs: { id: string; name: string }[] 
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Organization
+        {t("projects.organization")}
         <br />
         <select value={orgId} onChange={(e) => setOrgId(e.target.value)}>
           {orgs.map((o) => (
@@ -54,13 +56,13 @@ export function NewProjectForm({ orgs }: { orgs: { id: string; name: string }[] 
         </select>
       </label>
       <label>
-        Project name
+        {t("projects.name")}
         <br />
         <input required value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={loading}>
-        Create project
+        {t("projects.create")}
       </button>
     </form>
   );

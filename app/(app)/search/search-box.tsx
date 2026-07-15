@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { searchAction } from "./actions";
+import { useLocale } from "../locale-context";
 
 interface Result {
   document_id: string;
@@ -20,19 +21,20 @@ interface Project {
 }
 
 export function SearchBox({ projects }: { projects: Project[] }) {
+  const { t } = useLocale();
   const [query, setQuery] = useState("");
   const [projectId, setProjectId] = useState<string>("");
   const [results, setResults] = useState<Result[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function runSearch(nextProjectId: string) {
+    if (!query) return;
     setLoading(true);
     setError(null);
 
     try {
-      const data = await searchAction(query, projectId || undefined);
+      const data = await searchAction(query, nextProjectId || undefined);
       setResults(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -41,19 +43,26 @@ export function SearchBox({ projects }: { projects: Project[] }) {
     }
   }
 
-  // Group by project (alphabetical), then order files within each project alphabetically by path.
-  const groups = useMemo(() => {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await runSearch(projectId);
+  }
+
+  function handleProjectChange(nextProjectId: string) {
+    setProjectId(nextProjectId);
+    // Re-run immediately if there's already a query, instead of waiting for another click.
+    if (results) runSearch(nextProjectId);
+  }
+
+  // Flat list, sorted by project name then file path (both alphabetical) — no section grouping.
+  const sortedResults = useMemo(() => {
     if (!results) return [];
-    const byProject = new Map<string, Result[]>();
-    for (const r of results) {
-      const key = r.project_name;
-      if (!byProject.has(key)) byProject.set(key, []);
-      byProject.get(key)!.push(r);
-    }
-    for (const items of byProject.values()) {
-      items.sort((a, b) => a.path.localeCompare(b.path) || a.chunk_index - b.chunk_index);
-    }
-    return Array.from(byProject.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return [...results].sort(
+      (a, b) =>
+        a.project_name.localeCompare(b.project_name) ||
+        a.path.localeCompare(b.path) ||
+        a.chunk_index - b.chunk_index
+    );
   }, [results]);
 
   return (
@@ -61,14 +70,14 @@ export function SearchBox({ projects }: { projects: Project[] }) {
       <form onSubmit={handleSubmit}>
         <div className="row">
           <input
-            placeholder="What are you looking for?"
+            placeholder={t("search.placeholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             style={{ flex: 1 }}
             autoFocus
           />
-          <select value={projectId} onChange={(e) => setProjectId(e.target.value)}>
-            <option value="">All projects</option>
+          <select value={projectId} onChange={(e) => handleProjectChange(e.target.value)}>
+            <option value="">{t("search.allProjects")}</option>
             {projects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -76,28 +85,24 @@ export function SearchBox({ projects }: { projects: Project[] }) {
             ))}
           </select>
           <button type="submit" disabled={loading || !query}>
-            {loading ? "Searching…" : "Search"}
+            {loading ? t("search.searching") : t("search.search")}
           </button>
         </div>
       </form>
 
       {error && <p className="error">{error}</p>}
 
-      {results && results.length === 0 && <p className="muted">No results.</p>}
+      {results && results.length === 0 && <p className="muted">{t("search.noResults")}</p>}
 
-      {groups.map(([projectName, items]) => (
-        <div key={projectName} style={{ marginTop: 20 }}>
-          <h3>{projectName}</h3>
-          {items.map((r) => (
-            <div className="card" key={`${r.document_id}-${r.chunk_index}`}>
-              <div className="row" style={{ justifyContent: "space-between" }}>
-                <Link href={`/projects/${r.project_id}/docs/${r.path}`}>{r.path}</Link>
-              </div>
-              <p className="muted" style={{ whiteSpace: "pre-wrap" }}>
-                {r.content}
-              </p>
-            </div>
-          ))}
+      {sortedResults.map((r) => (
+        <div className="card" key={`${r.document_id}-${r.chunk_index}`}>
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <Link href={`/projects/${r.project_id}/docs/${r.path}`}>{r.path}</Link>
+            <span className="badge">{r.project_name}</span>
+          </div>
+          <p className="muted" style={{ whiteSpace: "pre-wrap" }}>
+            {r.content}
+          </p>
         </div>
       ))}
     </>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
+import { useLocale } from "../locale-context";
 
 function randomHex(bytes: number): string {
   const arr = new Uint8Array(bytes);
@@ -18,6 +19,7 @@ async function sha256Hex(text: string): Promise<string> {
 
 export function CreateApiKeyForm() {
   const router = useRouter();
+  const { t } = useLocale();
   const [name, setName] = useState("");
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -56,9 +58,9 @@ export function CreateApiKeyForm() {
   if (createdKey) {
     return (
       <div>
-        <p>Copy this key now — it won&apos;t be shown again:</p>
+        <p>{t("apiKeys.copyNotice")}</p>
         <pre className="card">{createdKey}</pre>
-        <button onClick={() => setCreatedKey(null)}>Done</button>
+        <button onClick={() => setCreatedKey(null)}>{t("apiKeys.done")}</button>
       </div>
     );
   }
@@ -66,13 +68,13 @@ export function CreateApiKeyForm() {
   return (
     <form onSubmit={handleSubmit}>
       <label>
-        Name
+        {t("apiKeys.name")}
         <br />
         <input required placeholder="My laptop" value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={loading}>
-        Create key
+        {t("apiKeys.create")}
       </button>
     </form>
   );

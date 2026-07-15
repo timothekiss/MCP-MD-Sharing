@@ -1,0 +1,28 @@
+"use client";
+
+import { useLocale } from "./locale-context";
+
+export function LanguageSwitcher({ collapsed }: { collapsed?: boolean }) {
+  const { locale, setLocale } = useLocale();
+
+  return (
+    <div className={`language-switcher ${collapsed ? "language-switcher-collapsed" : ""}`}>
+      <button
+        className={`flag-button ${locale === "en" ? "flag-button-active" : ""}`}
+        onClick={() => setLocale("en")}
+        title="English"
+        aria-label="English"
+      >
+        🇬🇧
+      </button>
+      <button
+        className={`flag-button ${locale === "fr" ? "flag-button-active" : ""}`}
+        onClick={() => setLocale("fr")}
+        title="Français"
+        aria-label="Français"
+      >
+        🇫🇷
+      </button>
+    </div>
+  );
+}
