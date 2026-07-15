@@ -7,14 +7,14 @@ import { search } from "@/lib/search";
 // tool uses (lib/search.ts) — it resolves the caller's real accessible
 // projects itself, so results can never include anything the signed-in
 // user isn't a member of.
-export async function searchAction(query: string) {
+export async function searchAction(query: string, projectId?: string) {
   const supabase = await getServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not signed in");
 
-  const results = await search(user.id, query, undefined, 20);
+  const results = await search(user.id, query, projectId, 20);
 
   const projectIds = [...new Set(results.map((r) => r.project_id))];
   const { data: projects } = await supabase.from("projects").select("id, name").in("id", projectIds);

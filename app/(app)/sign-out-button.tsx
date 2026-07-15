@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/lib/supabase-browser";
 
-export function SignOutButton() {
+export function SignOutButton({ iconOnly }: { iconOnly?: boolean }) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -12,5 +12,9 @@ export function SignOutButton() {
     router.refresh();
   }
 
-  return <button onClick={handleSignOut}>Sign out</button>;
+  return (
+    <button onClick={handleSignOut} title={iconOnly ? "Sign out" : undefined}>
+      {iconOnly ? "⎋" : "Sign out"}
+    </button>
+  );
 }
